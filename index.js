@@ -44,7 +44,6 @@ detector.listen = function (options){
 };
 
 detector.sendQuery = function (){
-console.log("Q");
   this.query({
     questions:[{
       name: '_googlecast._tcp.local',
