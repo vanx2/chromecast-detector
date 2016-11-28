@@ -24,7 +24,7 @@ detector.listen = function (options){
         ip   = ad.data;
       } else if ( ad.type === 'SRV' ) {
         port = ad.data.port;
-        display = ad.name.match(/.fn=(.+).ca=/)[1]
+        display = ad.name.match(/.fn=(.+).ca=/)[1];
       }
     });
     if (name && ip &&
