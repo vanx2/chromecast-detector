@@ -11,7 +11,7 @@ detector.listen = function (options){
 
   // when get response
   _self.on('response', function (response) {
-    var name = ip = id = port = '';
+    var name = ip = id = port = display = '';
     response.answers.forEach(function (an) {
       if (an.type === 'PTR' && an.name === '_googlecast._tcp.local'){
         name = an.data.replace(/\._googlecast\._tcp\.local$/, '');
@@ -20,16 +20,17 @@ detector.listen = function (options){
     response.additionals.forEach(function (ad) {
       if        ( ad.type === 'TXT' && ad.name === name + '._googlecast._tcp.local' ) {
         id   = ad.data.replace(/^id=/, '');
-      } else if ( ad.type === 'A'   && ad.name === name + '.local' ) {
+      } else if ( ad.type === 'A'   && ad.name.replace(/-/g, '') === name.substr(11) + '.local' ) {
         ip   = ad.data;
       } else if ( ad.type === 'SRV' ) {
         port = ad.data.port;
+        display = ad.name.match(/.fn=(.+).ca=/)[1];
       }
     });
-    if (name && ip && 
+    if (name && ip &&
          ( ! _self.casts.hasOwnProperty(id) ||  _self.casts[id].ip != ip || _self.casts[id].name != name ) &&
          ( ! ( options && options.hasOwnProperty("names") && options.names.indexOf(name) < 0 ) ) ) {
-      _self.casts[id] = {name: name, ip: ip, port: port, id: id};
+      _self.casts[id] = {name: name, ip: ip, port: port, id: id, display: display};
       if ( ! module.parent) { console.log("[DETECT]", _self.casts[id] ); }
       _self.emit('detect', _self.casts[id]);
     }
@@ -50,7 +51,7 @@ detector.sendQuery = function (){
       type: 'ptr'
     }]
   });
-  
+
 };
 detector.terminate = function (){
   this.destroy();
@@ -61,5 +62,3 @@ if (module.parent) {
 } else {
   detector.listen( ( process.argv.length > 2) ? JSON.parse( process.argv.slice(2) ) : undefined );
 }
-
-
