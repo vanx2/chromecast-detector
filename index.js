@@ -20,7 +20,7 @@ detector.listen = function (options){
     response.additionals.forEach(function (ad) {
       if        ( ad.type === 'TXT' && ad.name === name + '._googlecast._tcp.local' ) {
         id   = ad.data.replace(/^id=/, '');
-      } else if ( ad.type === 'A'   && ad.name === name + '.local' ) {
+      } else if ( ad.type === 'A'   && ad.name.replace(/-/g, '') === name.substr(11) + '.local' ) {
         ip   = ad.data;
       } else if ( ad.type === 'SRV' ) {
         port = ad.data.port;
@@ -50,7 +50,7 @@ detector.sendQuery = function (){
       type: 'ptr'
     }]
   });
-  
+
 };
 detector.terminate = function (){
   this.destroy();
@@ -61,5 +61,3 @@ if (module.parent) {
 } else {
   detector.listen( ( process.argv.length > 2) ? JSON.parse( process.argv.slice(2) ) : undefined );
 }
-
-
