@@ -11,7 +11,7 @@ detector.listen = function (options){
 
   // when get response
   _self.on('response', function (response) {
-    var name = ip = id = port = '';
+    var name = ip = id = port = display = '';
     response.answers.forEach(function (an) {
       if (an.type === 'PTR' && an.name === '_googlecast._tcp.local'){
         name = an.data.replace(/\._googlecast\._tcp\.local$/, '');
@@ -24,12 +24,13 @@ detector.listen = function (options){
         ip   = ad.data;
       } else if ( ad.type === 'SRV' ) {
         port = ad.data.port;
+        display = ad.name.match(/.fn=(.+).ca=/)[1]
       }
     });
-    if (name && ip && 
+    if (name && ip &&
          ( ! _self.casts.hasOwnProperty(id) ||  _self.casts[id].ip != ip || _self.casts[id].name != name ) &&
          ( ! ( options && options.hasOwnProperty("names") && options.names.indexOf(name) < 0 ) ) ) {
-      _self.casts[id] = {name: name, ip: ip, port: port, id: id};
+      _self.casts[id] = {name: name, ip: ip, port: port, id: id, display: display};
       if ( ! module.parent) { console.log("[DETECT]", _self.casts[id] ); }
       _self.emit('detect', _self.casts[id]);
     }
